@@ -2,6 +2,7 @@
 session_start();
 $ip_add = getenv("REMOTE_ADDR");
 include "db.php";
+
 if(isset($_POST["category"])){
 	$category_query = "SELECT * FROM categories ORDER BY cat_title";
 	$run_query = mysqli_query($con,$category_query) or die(mysqli_error($con));
@@ -128,14 +129,23 @@ if(isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isse
 		}
 	}
 	
-
-
+	
+	//Agregar al carrito e ir haciendo el antecedente para la recomendacion
 	if(isset($_POST["addToCart"])){
-		
-
 		$p_id = $_POST["proId"];
-		
+	// obtener la categoria del producto seleccionado
+		$sql_categoria = "SELECT cat_title FROM vproducts where product_id = '$p_id' ";
+		$run_query_CAT= mysqli_query($con,$sql_categoria);
+		$categoria = mysqli_fetch_array($run_query_CAT);
+		if(!isset($_SESSION['antecedente'])){
+			$_SESSION['antecedente']= $categoria[0];
+		}
+		else{
+			$_SESSION['antecedente']= $_SESSION['antecedente'].", ".$categoria[0];
+		}
+		echo $_SESSION['antecedente'];
 
+	//
 		if(isset($_SESSION["uid"])){
 
 		$user_id = $_SESSION["uid"];
@@ -235,8 +245,14 @@ if (isset($_POST["Common"])) {
 if(isset($_POST["getRecomienda"]) && isset($product_cat)){	
 
 	//$product_query = "SELECT * FROM products where product_cat = '$product_cat' ";
+	//$sql_p = "call p_recomendacion ('.$product_cat.')";
+	//var_dump ($sql_p);
+	//$consecuente  = mysqli_query($con,$sql_p);
+	//var_dump ($consecuente);
+	//$product_cat = '7';	
 
-	$product_cat = '7';	
+
+
 	$product_query = "SELECT * FROM products where product_cat = '$product_cat' ";
 	//var_dump($product_query);
 	$run_query = mysqli_query($con,$product_query);
