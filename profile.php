@@ -134,6 +134,14 @@ if(!isset($_SESSION["uid"])){
 					</div>
 					<div class="panel-footer">&copy; 2019</div>
 				</div>
+				<div class="panel panel-info">
+					<div class="panel-heading">Productos Relacionados</div>
+					<div class="panel-body">
+						<div id="get_relacionado">
+							
+						</div>
+					</div>
+				</div>		
 			</div>
 			<div class="col-md-1"></div>
 		</div>
