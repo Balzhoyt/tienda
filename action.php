@@ -2,7 +2,7 @@
 session_start();
 $ip_add = getenv("REMOTE_ADDR");
 include "db.php";
-
+$row["count_item"]=0;
 if(isset($_POST["category"])){
 	$category_query = "SELECT * FROM categories ORDER BY cat_title";
 	$run_query = mysqli_query($con,$category_query) or die(mysqli_error($con));
@@ -129,23 +129,27 @@ if(isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isse
 		}
 	}
 	
-	
-	//Agregar al carrito e ir haciendo el antecedente para la recomendacion
+
+
+	global $antecedente;
 	if(isset($_POST["addToCart"])){
 		$p_id = $_POST["proId"];
-	// obtener la categoria del producto seleccionado
-		$sql_categoria = "SELECT cat_title FROM vproducts where product_id = '$p_id' ";
-		$run_query_CAT= mysqli_query($con,$sql_categoria);
-		$categoria = mysqli_fetch_array($run_query_CAT);
+		$sql = "SELECT cat_title FROM vproducts WHERE product_id=$p_id";
+		$run_query = mysqli_query($con,$sql);
+		$row =  mysqli_fetch_assoc($run_query);
+		$cat= $row["cat_title"];
+		//echo $antecedente.",".$dato;
+		/**
 		if(!isset($_SESSION['antecedente'])){
-			$_SESSION['antecedente']= $categoria[0];
+			$_SESSION['antecedente']= $cat;
+			$antecedente=$_SESSION['antecedente'];
 		}
 		else{
-			$_SESSION['antecedente']= $_SESSION['antecedente'].", ".$categoria[0];
+			$_SESSION['antecedente']= $_SESSION['antecedente'].", ".$cat;
+			$antecedente=$_SESSION['antecedente'];
 		}
-		echo $_SESSION['antecedente'];
-
-	//
+		*/
+		//echo $antecedente;
 		if(isset($_SESSION["uid"])){
 
 		$user_id = $_SESSION["uid"];
@@ -161,9 +165,8 @@ if(isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isse
 				</div>
 			";//not in video
 		} else {
-			$sql = "INSERT INTO `cart`
-			(`p_id`, `ip_add`, `user_id`, `qty`) 
-			VALUES ('$p_id','$ip_add','$user_id','1')";
+			$sql = "INSERT INTO `cart` (`p_id`, `ip_add`, `user_id`, `qty`,categoria) 
+						VALUES ('$p_id','$ip_add','$user_id','1','$cat')";
 			if(mysqli_query($con,$sql)){
 				echo "
 					<div class='alert alert-success'>
@@ -185,8 +188,8 @@ if(isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isse
 					exit();
 			}
 			$sql = "INSERT INTO `cart`
-			(`p_id`, `ip_add`, `user_id`, `qty`) 
-			VALUES ('$p_id','$ip_add','-1','1')";
+			(`p_id`, `ip_add`, `user_id`, `qty`,categoria) 
+			VALUES ('$p_id','$ip_add','-1','1','$cat')";
 			if (mysqli_query($con,$sql)) {
 				echo "
 					<div class='alert alert-success'>
@@ -198,7 +201,7 @@ if(isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isse
 			}
 			
 		}
-		
+		header ("Location:index.php"); 	
 		
 		
 		
@@ -217,6 +220,7 @@ if (isset($_POST["count_item"])) {
 	$query = mysqli_query($con,$sql);
 	$row = mysqli_fetch_array($query);
 	echo $row["count_item"];
+	$_SESSION['cant']=$row["count_item"];
 	exit();
 }
 //Count User cart item
@@ -226,38 +230,99 @@ if (isset($_POST["Common"])) {
 
 	if (isset($_SESSION["uid"])) {
 		//When user is logged in this query will execute
+		$sql2 = "SELECT categoria from cart where `cart`.`user_id`='$_SESSION[uid]'";
 		$sql = "SELECT a.product_id,a.product_title,a.product_price,a.product_image,b.id,b.qty,a.product_cat FROM products a,cart b WHERE a.product_id=b.p_id AND b.user_id='$_SESSION[uid]'";
 	}else{
 		//When user is not logged in this query will execute
-		$sql = "SELECT a.product_id,a.product_title,a.product_price,a.product_image,b.id,b.qty,a.product_cat FROM products a,cart b WHERE a.product_id=b.p_id AND b.ip_add='$ip_add' AND b.user_id < 0";
+		$sql2 = "SELECT categoria from cart where `cart`.`user_id` < 0";
+		$sql = "SELECT a.product_id,a.product_title,a.product_price,a.product_image,b.id,b.qty,a.product_cat FROM products a,cart b WHERE a.product_id=b.p_id AND b.ip_add='$ip_add' AND b.user_id < 0 ";
 	}
+	//var_dump($sql);
+	/*
+	$query = mysqli_query($con,$sql2);
+	if (mysqli_num_rows($query) > 0) {
+		while ($row=mysqli_fetch_array($query)) {
+
+			//$product_cat = $row["categoria"];	
+			//$product_cat2 = $row["categoria"];	
+			//echo "product cat2 ".$product_cat2;		
+		}
+	}
+	*/
 	$query = mysqli_query($con,$sql);
-	$query2 = mysqli_query($con,$sql);
+	$query2 = mysqli_query($con,$sql2);
+	//var_dump($sql2);
 	if (mysqli_num_rows($query2) > 0) {
 			while ($row=mysqli_fetch_array($query2)) {
 
-				$product_cat = $row["product_cat"];			
+				$product_cat = $row["categoria"];	
+				//$product_cat = $row["product_cat"];	
+			//	echo "product cat1 ".$product_cat;		
 			}
 
 	}
+	
 //RECOMENDADOR
-//if(isset($_POST["getRecomienda"]) && isset($product_cat)){
+global $cat_antecedente;
+
 if(isset($_POST["getRecomienda"]) && isset($product_cat)){	
+	
+	if(!isset($_SESSION['antecedente'])){
+		$_SESSION['antecedente']= $product_cat;
+		$antecedente=$_SESSION['antecedente'];
+		$_SESSION['consecuente']=$antecedente;
+		$_SESSION['cant']++;
+	}
+	else{
+		
+		if($_SESSION['antecedente']==""){
+			$_SESSION['antecedente']= $product_cat;
+			$antecedente=$_SESSION['antecedente'];
+			$_SESSION['consecuente']=$antecedente;
+			
+		}
+		else{
+			$_SESSION['antecedente']= $_SESSION['antecedente'].", ".$product_cat;
+			$antecedente=$_SESSION['antecedente'];
+		}
+		
+			$sql_cat_consecuente="SELECT consecuente FROM apriori WHERE antecedente LIKE '%$antecedente'";
+			$query = mysqli_query($con,$sql_cat_consecuente);
+			$row = mysqli_fetch_array($query);
+			$consecuente= $row["consecuente"];
+			$_SESSION['consecuente']=$consecuente;
+			
+			echo $sql_cat_consecuente;
+			echo " El consecuente es> ".$consecuente;
+			
+			$_SESSION['cant']++;
+	}
+	
+	
+		
+	if($_SESSION['cant'] >4){
+		echo "cant2 = ".$_SESSION['cant'];
+		//$_SESSION['antecedente'];
+		$_SESSION['antecedente']="";
+		$_SESSION['cant']=0;
 
-	//$product_query = "SELECT * FROM products where product_cat = '$product_cat' ";
-	//$sql_p = "call p_recomendacion ('.$product_cat.')";
-	//var_dump ($sql_p);
-	//$consecuente  = mysqli_query($con,$sql_p);
-	//var_dump ($consecuente);
-	//$product_cat = '7';	
+	}
+	echo "cant3 = ".$_SESSION['cant'];
+	//echo "antecedente".$antecedente;
 
-
-
-	$product_query = "SELECT * FROM products where product_cat = '$product_cat' ";
-	//var_dump($product_query);
-	$run_query = mysqli_query($con,$product_query);
+	if(isset($_SESSION['consecuente'])){
+		$consecuente=$_SESSION['consecuente'];
+	}
+	else{
+		$consecuente='VARIOS';
+	}
+	echo " El consecuente es> ".$consecuente;
+	$product_query = "SELECT * FROM products where categoria = '$consecuente' ";
+	var_dump($product_query);
+	$run_query = mysqli_query($con,$product_query) or die("Problemas ".mysqli_error($con));
 	if(mysqli_num_rows($run_query) > 0){
 		while($row = mysqli_fetch_array($run_query)){
+			
 			$pro_id    = $row['product_id'];
 			$pro_cat   = $row['product_cat'];
 			$pro_brand = $row['product_brand'];
@@ -292,8 +357,10 @@ if(isset($_POST["getRecomienda"]) && isset($product_cat)){
 	}
 
    
+	
 
 }
+
 	if (isset($_POST["getCartItem"])) {
 		//display cart item in dropdown menu
 		if (mysqli_num_rows($query) > 0) {

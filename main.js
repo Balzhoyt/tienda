@@ -43,6 +43,7 @@ $(document).ready(function(){
 			url	:	"action.php",
 			method:	"POST",
 			data	:	{Common:1,getRecomienda:1},
+			//data	:	{getRecomienda:1},
 			success	:	function(data){
 				$("#get_relacionado").html(data);
 			}
