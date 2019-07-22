@@ -3,6 +3,7 @@ session_start();
 $ip_add = getenv("REMOTE_ADDR");
 include "db.php";
 $row["count_item"]=0;
+
 if(isset($_POST["category"])){
 	$category_query = "SELECT * FROM categories ORDER BY cat_title";
 	$run_query = mysqli_query($con,$category_query) or die(mysqli_error($con));
@@ -271,7 +272,7 @@ if(isset($_POST["getRecomienda"]) && isset($product_cat)){
 		$_SESSION['antecedente']= $product_cat;
 		$antecedente=$_SESSION['antecedente'];
 		$_SESSION['consecuente']=$antecedente;
-		$_SESSION['cant']++;
+		//$_SESSION['cant']++;
 	}
 	else{
 		
@@ -299,14 +300,19 @@ if(isset($_POST["getRecomienda"]) && isset($product_cat)){
 	}
 	
 	
-		
-	if($_SESSION['cant'] >4){
-		echo "cant2 = ".$_SESSION['cant'];
-		//$_SESSION['antecedente'];
-		$_SESSION['antecedente']="";
-		$_SESSION['cant']=0;
-
+	if(isset($_SESSION['cant'])){
+		if($_SESSION['cant'] >4){
+			echo "cant2 = ".$_SESSION['cant'];
+			//$_SESSION['antecedente'];
+			$_SESSION['antecedente']="";
+			$_SESSION['cant']=0;
+	
+		}
 	}
+	else{
+		$_SESSION['cant']=0;
+	}
+	
 	echo "cant3 = ".$_SESSION['cant'];
 	//echo "antecedente".$antecedente;
 
