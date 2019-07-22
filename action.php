@@ -3,7 +3,6 @@ session_start();
 $ip_add = getenv("REMOTE_ADDR");
 include "db.php";
 $row["count_item"]=0;
-
 if(isset($_POST["category"])){
 	$category_query = "SELECT * FROM categories ORDER BY cat_title";
 	$run_query = mysqli_query($con,$category_query) or die(mysqli_error($con));
@@ -265,55 +264,58 @@ if (isset($_POST["Common"])) {
 	
 //RECOMENDADOR
 global $cat_antecedente;
-
+//$_SESSION['cant']=0;
 if(isset($_POST["getRecomienda"]) && isset($product_cat)){	
 	
 	if(!isset($_SESSION['antecedente'])){
+		$product_cat="'%".$product_cat."%'";
 		$_SESSION['antecedente']= $product_cat;
+		//$_SESSION['antecedente']= $product_cat;
 		$antecedente=$_SESSION['antecedente'];
-		$_SESSION['consecuente']=$antecedente;
+		//$_SESSION['consecuente']=$antecedente;
 		//$_SESSION['cant']++;
 	}
 	else{
 		
 		if($_SESSION['antecedente']==""){
+			$product_cat="'%".$product_cat."%'";
 			$_SESSION['antecedente']= $product_cat;
+			//$_SESSION['antecedente']= $product_cat;
 			$antecedente=$_SESSION['antecedente'];
-			$_SESSION['consecuente']=$antecedente;
+			//$_SESSION['consecuente']=$antecedente;
 			
 		}
 		else{
-			$_SESSION['antecedente']= $_SESSION['antecedente'].", ".$product_cat;
+			//$_SESSION['antecedente']= $_SESSION['antecedente'].", ".$product_cat;
+			$product_cat="'%".$product_cat."%'";
+			$_SESSION['antecedente']=$_SESSION['antecedente']." AND antecedente LIKE $product_cat";
+
 			$antecedente=$_SESSION['antecedente'];
 		}
 		
-			$sql_cat_consecuente="SELECT consecuente FROM apriori WHERE antecedente LIKE '%$antecedente'";
+			$sql_cat_consecuente="SELECT consecuente FROM apriori WHERE antecedente LIKE $antecedente";
 			$query = mysqli_query($con,$sql_cat_consecuente);
 			$row = mysqli_fetch_array($query);
 			$consecuente= $row["consecuente"];
 			$_SESSION['consecuente']=$consecuente;
 			
-			echo $sql_cat_consecuente;
-			echo " El consecuente es> ".$consecuente;
+			//echo $sql_cat_consecuente;
+			//echo " El consecuente es> ".$consecuente;
 			
-			$_SESSION['cant']++;
+			//$_SESSION['cant']++;
 	}
 	
 	
-	if(isset($_SESSION['cant'])){
-		if($_SESSION['cant'] >4){
-			echo "cant2 = ".$_SESSION['cant'];
-			//$_SESSION['antecedente'];
-			$_SESSION['antecedente']="";
-			$_SESSION['cant']=0;
-	
-		}
-	}
-	else{
+	/*	
+	if($_SESSION['cant'] >4){
+		//echo "cant2 = ".$_SESSION['cant'];
+		//$_SESSION['antecedente'];
+		$_SESSION['antecedente']="";
 		$_SESSION['cant']=0;
+
 	}
-	
-	echo "cant3 = ".$_SESSION['cant'];
+	*/
+	//echo "cant3 = ".$_SESSION['cant'];
 	//echo "antecedente".$antecedente;
 
 	if(isset($_SESSION['consecuente'])){
@@ -322,9 +324,9 @@ if(isset($_POST["getRecomienda"]) && isset($product_cat)){
 	else{
 		$consecuente='VARIOS';
 	}
-	echo " El consecuente es> ".$consecuente;
+	//echo " El consecuente es> ".$consecuente;
 	$product_query = "SELECT * FROM products where categoria = '$consecuente' ";
-	var_dump($product_query);
+	//var_dump($product_query);
 	$run_query = mysqli_query($con,$product_query) or die("Problemas ".mysqli_error($con));
 	if(mysqli_num_rows($run_query) > 0){
 		while($row = mysqli_fetch_array($run_query)){
