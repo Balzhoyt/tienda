@@ -80,7 +80,7 @@ if(isset($_POST["getProduct"])){
 								</div>
 								<div class='panel-body'>
 								<center>
-									<img src='product_images/$pro_image' style='width:160px; height:250px;'/>
+									<img src='product_images/$pro_image' style='width:160px; height:230px;'/>
 								</center>
 								</div>
 							
@@ -119,7 +119,7 @@ if(isset($_POST["get_seleted_Category"]) || isset($_POST["selectBrand"]) || isse
 							<div class='panel panel-info'>
 								<div class='div1'>$pro_title</div>
 								<div class='panel-body'>
-									<img src='product_images/$pro_image' style='width:160px; height:250px;'/>
+									<img src='product_images/$pro_image' style='width:160px; height:230px;'/>
 								</div>
 								<div class='panel-heading'>$ $pro_price.00
 									<button pid='$pro_id' style='float:right;' id='product' class='btn btn-success btn-xs'>Agregar</button>
@@ -311,7 +311,7 @@ if(isset($_POST["getRecomienda"]) && isset($product_cat)){
 	
 		
 	if($_SESSION['cant'] >4){
-		//echo "cant2 = ".$_SESSION['cant'];
+		echo "cant2 = ".$_SESSION['cant'];
 		//$_SESSION['antecedente'];
 		$_SESSION['antecedente']="";
 		$_SESSION['cant']="";
@@ -353,7 +353,7 @@ if(isset($_POST["getRecomienda"]) && isset($product_cat)){
 								</div>
 								<div class='panel-body'>
 								<center>
-									<img src='product_images/$pro_image' style='width:160px; height:250px;'/>
+									<img src='product_images/$pro_image' style='width:160px; height:230px;'/>
 								</center>
 								</div>
 							
@@ -522,9 +522,3 @@ if (isset($_POST["updateCartItem"])) {
 
 
 ?>
-
-
-
-
-
-
