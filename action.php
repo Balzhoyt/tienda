@@ -1,6 +1,6 @@
 <?php
-
 session_start();
+header('Content-Type: text/html; charset=UTF-8');
 $ip_add = getenv("REMOTE_ADDR");
 include "db.php";
 $row["count_item"]=0;

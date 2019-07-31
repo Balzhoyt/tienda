@@ -1,5 +1,6 @@
 <?php
 session_start();
+ini_set("default_charset", "UTF-8");
 if(isset($_SESSION["uid"])){
 	header("location:profile.php");
 }
